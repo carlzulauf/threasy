@@ -1,4 +1,8 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in threasy.gemspec
+platform :rbx do
+  gem "rubysl-mutex_m"
+  gem "rubysl-singleton"
+end
+
 gemspec
