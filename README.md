@@ -1,8 +1,13 @@
-# Threasy
+# Threasy [![Build Status][travis-image]][travis-link]
+
+[travis-image]: https://secure.travis-ci.org/carlzulauf/threasy.png?branch=master
+[travis-link]: http://travis-ci.org/carlzulauf/threasy
 
 Dead simple in-process threaded background job solution.
 
 Includes scheduling for jobs in the future and/or recurring jobs.
+
+Work waiting to be processed is stored in a thread-safe `Queue` and worked on by a small pool of worker threads.
 
 ### What to expect
 
