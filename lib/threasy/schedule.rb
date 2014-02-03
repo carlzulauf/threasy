@@ -83,7 +83,7 @@ module Threasy
 
       def initialize(job, options = {})
         self.job = job
-        seconds = options[:in] || options[:every]
+        seconds = options.fetch(:in, 60)
         self.at = options.fetch(:at){ Time.now + seconds }
         self.repeat = options[:every]
       end

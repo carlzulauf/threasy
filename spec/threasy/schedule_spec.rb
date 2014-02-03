@@ -24,7 +24,7 @@ describe "Threasy::Schedule" do
     it "should allow a job to be repeated at the specified interval" do
       job = double("job")
       expect(job).to receive(:perform).at_least(:twice)
-      @schedule.add(job, every: 1)
+      @schedule.add(job, every: 1, in: 1)
       sleep 3
     end
 
