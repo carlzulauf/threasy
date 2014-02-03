@@ -1,6 +1,7 @@
 module Threasy
   class Schedule
     include Singleton
+    include Enumerable
 
     def initialize
       @semaphore = Mutex.new
@@ -32,6 +33,10 @@ module Threasy
 
     def entries
       @schedules
+    end
+
+    def each
+      entries.each {|entry| yield entry }
     end
 
     def clear
