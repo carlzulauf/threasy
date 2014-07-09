@@ -24,6 +24,10 @@ module Threasy
       entry
     end
 
+    def remove_entry(entry)
+      sync{ @schedules.delete entry }
+    end
+
     def tickle_watcher
       @watcher.wakeup if @watcher.stop?
     end
@@ -104,6 +108,10 @@ module Threasy
       def work!
         Threasy.enqueue job
         self.at = Time.now + repeat if repeat?
+      end
+
+      def remove
+        Schedule.instance.remove_entry self
       end
     end
   end

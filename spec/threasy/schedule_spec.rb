@@ -37,6 +37,14 @@ describe "Threasy::Schedule" do
       schedule.add(job, every: 0.1)
       sleep 0.3
     end
+
+    it "should be possible to remove a job from the schedule" do
+      expect(job).to receive(:perform).at_least(:once).at_most(:twice)
+      entry = schedule.add(job, every: 0.1)
+      sleep 0.2
+      entry.remove
+      sleep 0.2
+    end
   end
 
   after :each do
