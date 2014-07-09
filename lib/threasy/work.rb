@@ -29,17 +29,23 @@ module Threasy
     end
 
     def check_workers
-      pool_size = sync{ pool.size }
-      queue_size = queue.size
-      log "Checking workers. Pool: #{pool_size}, Max: #{max_workers}, Queue: #{queue_size}"
-      if pool_size < max_workers
-        add_worker(pool_size) if pool_size == 0 || queue_size > max_workers
+      sync do
+        pool_size = pool.size
+        queue_size = queue.size
+        log "Checking workers. Pool: #{pool_size}, Max: #{max_workers}, Queue: #{queue_size}"
+        if pool_size < max_workers
+          add_worker(pool_size) if pool_size == 0 || queue_size > max_workers
+        end
       end
     end
 
     def add_worker(size)
-      log "Adding new worker to pool"
-      Worker.new(size).work(self)
+      # sync do
+        log "Adding new worker to pool"
+        worker = Worker.new(self, size)
+        pool.add worker
+      # end
+      worker.work
     end
 
     def log(msg)
@@ -47,14 +53,14 @@ module Threasy
     end
 
     class Worker
-      def initialize(id)
+      def initialize(work, id)
+        @work = work
         @id = id
       end
 
-      def work(work)
+      def work
         Thread.start do
-          work.sync{ work.pool.add Thread.current }
-          while job = work.grab
+          while job = @work.grab
             log.debug "Worker ##{@id} has grabbed a job"
             begin
               job.respond_to?(:perform) ? job.perform : job.call
@@ -63,7 +69,7 @@ module Threasy
             end
           end
           log.debug "Worker ##{@id} removing self from pool"
-          work.sync{ work.pool.delete Thread.current }
+          @work.sync{ @work.pool.delete self }
         end
       end
 
