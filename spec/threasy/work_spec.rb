@@ -7,7 +7,7 @@ describe "Threasy::Work" do
 
   describe "#enqueue" do
     it "should have a method for enqueing" do
-      expect(@work.respond_to?(:enqueue)).to be_true
+      expect(@work.respond_to?(:enqueue)).to eq(true)
     end
 
     it "should allow a job object to be enqueued and worked" do
