@@ -7,6 +7,7 @@ module Threasy
     def initialize
       @queue = TimeoutQueue.new
       @pool = Set.new
+      @semaphore = Mutex.new
     end
 
     def enqueue(job = nil, &block)
@@ -14,6 +15,10 @@ module Threasy
     end
 
     alias_method :enqueue_block, :enqueue
+
+    def sync(&block)
+      @semaphore.synchronize &block
+    end
 
     def grab
       queue.pop
@@ -24,17 +29,17 @@ module Threasy
     end
 
     def check_workers
-      pool_size = pool.size
+      pool_size = sync{ pool.size }
       queue_size = queue.size
       log "Checking workers. Pool: #{pool_size}, Max: #{max_workers}, Queue: #{queue_size}"
       if pool_size < max_workers
-        add_worker if pool_size == 0 || queue_size > max_workers
+        add_worker(pool_size) if pool_size == 0 || queue_size > max_workers
       end
     end
 
-    def add_worker
+    def add_worker(size)
       log "Adding new worker to pool"
-      Worker.new(pool.size).work(self)
+      Worker.new(size).work(self)
     end
 
     def log(msg)
@@ -48,7 +53,7 @@ module Threasy
 
       def work(work)
         Thread.start do
-          work.pool.add Thread.current
+          work.sync{ work.pool.add Thread.current }
           while job = work.grab
             log.debug "Worker ##{@id} has grabbed a job"
             begin
@@ -58,7 +63,7 @@ module Threasy
             end
           end
           log.debug "Worker ##{@id} removing self from pool"
-          work.pool.delete Thread.current
+          work.sync{ work.pool.delete Thread.current }
         end
       end
 
