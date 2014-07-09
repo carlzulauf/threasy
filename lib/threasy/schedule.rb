@@ -84,9 +84,9 @@ module Threasy
 
       def initialize(job, options = {})
         self.job = job
-        seconds = options.fetch(:in){ options[:every] || 60 }
-        self.at = options.fetch(:at){ Time.now + seconds }
         self.repeat = options[:every]
+        seconds = options.fetch(:in){ repeat || 60 }
+        self.at = options.fetch(:at){ Time.now + seconds }
       end
 
       def repeat?
