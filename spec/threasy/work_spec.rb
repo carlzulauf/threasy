@@ -14,17 +14,17 @@ describe "Threasy::Work" do
       job = double("job")
       expect(job).to receive(:perform).once
       @work.enqueue job
-      sleep 0.5
+      sleep 0.1
     end
 
     it "should allow a job block to be enqueued and worked" do
       i = 0
       @work.enqueue do
-        sleep 0.5
+        sleep 0.1
         i += 1
       end
       expect(i).to eq(0)
-      sleep 1
+      sleep 0.2
       expect(i).to eq(1)
     end
   end
