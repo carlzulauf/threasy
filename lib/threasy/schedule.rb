@@ -21,6 +21,7 @@ module Threasy
         @schedules.sort_by!(&:at)
       end
       tickle_watcher
+      entry
     end
 
     def tickle_watcher
@@ -83,7 +84,7 @@ module Threasy
 
       def initialize(job, options = {})
         self.job = job
-        seconds = options.fetch(:in, 60)
+        seconds = options.fetch(:in){ options[:every] || 60 }
         self.at = options.fetch(:at){ Time.now + seconds }
         self.repeat = options[:every]
       end

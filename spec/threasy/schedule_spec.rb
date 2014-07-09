@@ -32,11 +32,11 @@ describe "Threasy::Schedule" do
       expect(i).to eq(1)
     end
 
-    # it "should default first run to now + every_interval" do
-    #   expect(job).to receive(:perform).at_least(:twice)
-    #   schedule.add(job, every: 0.1)
-    #   sleep 0.3
-    # end
+    it "should default first run to now + every_interval" do
+      expect(job).to receive(:perform).at_least(:twice)
+      schedule.add(job, every: 0.1)
+      sleep 0.3
+    end
   end
 
   after :each do
