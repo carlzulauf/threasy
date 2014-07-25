@@ -1,5 +1,8 @@
 require "spec_helper"
 
+class TestScheduledJob
+end
+
 describe "Threasy::Schedule" do
 
   describe "#add" do
@@ -30,6 +33,12 @@ describe "Threasy::Schedule" do
       expect(i).to eq(0)
       sleep 0.2
       expect(i).to eq(1)
+    end
+
+    it "should allow string expressions to be processed on schedule" do
+      expect(TestScheduledJob).to receive(:perform)
+      schedule.add("TestScheduledJob", in: 0.1)
+      sleep 0.2
     end
 
     it "should default first run to now + every_interval" do

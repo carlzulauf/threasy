@@ -63,6 +63,7 @@ module Threasy
           while job = @work.grab
             log.debug "Worker ##{@id} has grabbed a job"
             begin
+              job = eval(job) if job.kind_of?(String)
               job.respond_to?(:perform) ? job.perform : job.call
             rescue Exception => e
               log.error %|Worker ##{@id} error: #{e.message}\n#{e.backtrace.join("\n")}|
