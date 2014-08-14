@@ -3,6 +3,8 @@ module Threasy
     include Singleton
     include Enumerable
 
+    attr_accessor :max_sleep
+
     def initialize
       @semaphore = Mutex.new
       @schedules = []
@@ -48,6 +50,10 @@ module Threasy
       sync{ @schedules.clear }
     end
 
+    def max_sleep
+      Threasy.config.max_sleep
+    end
+
     def watch
       loop do
         Thread.stop if @schedules.empty?
@@ -58,7 +64,7 @@ module Threasy
         end
         next_job = @schedules.first
         if next_job && next_job.future?
-          seconds = next_job.at - Time.now
+          seconds = [next_job.at - Time.now, max_sleep].min
           log.debug "Schedule watcher sleeping for #{seconds} seconds"
           sleep seconds
         end
