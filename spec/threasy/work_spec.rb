@@ -5,7 +5,7 @@ end
 
 describe "Threasy::Work" do
   before :each do
-    @work = Threasy::Work.instance
+    @work = Threasy::Work.new
   end
 
   describe "#enqueue" do

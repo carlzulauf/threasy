@@ -17,7 +17,7 @@ module Threasy
   end
 
   def self.work
-    Work.instance
+    config.work ||= Work.new
   end
 
   def self.enqueue(*args, &block)
@@ -25,7 +25,7 @@ module Threasy
   end
 
   def self.schedules
-    Schedule.instance
+    config.schedules ||= Schedule.new(work)
   end
 
   def self.schedule(*args, &block)

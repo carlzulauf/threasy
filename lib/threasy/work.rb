@@ -1,6 +1,6 @@
 module Threasy
   class Work
-    include Singleton
+    # include Singleton
 
     attr_reader :queue, :pool
 

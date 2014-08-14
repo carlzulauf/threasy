@@ -2,7 +2,7 @@ module Threasy
   class Config
     include Singleton
 
-    attr_accessor :max_workers
+    attr_accessor :work, :schedules, :max_workers
     attr_writer :logger
 
     def initialize

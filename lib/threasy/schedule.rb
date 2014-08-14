@@ -1,9 +1,10 @@
 module Threasy
   class Schedule
-    include Singleton
+    # include Singleton
     include Enumerable
 
-    def initialize
+    def initialize(work = nil)
+      @work = work
       @semaphore = Mutex.new
       @schedules = []
       @watcher = Thread.new{ watch }
@@ -12,7 +13,7 @@ module Threasy
     def add(*args, &block)
       options = args.last.is_a?(Hash) ? args.pop : {}
       job = block_given? ? block : args.first
-      add_entry Entry.new(job, options)
+      add_entry Entry.new(self, job, options)
     end
 
     def add_entry(entry)
@@ -22,6 +23,10 @@ module Threasy
       end
       tickle_watcher
       entry
+    end
+
+    def work
+      @work ||= Threasy.work
     end
 
     def remove_entry(entry)
@@ -85,9 +90,10 @@ module Threasy
     end
 
     class Entry
-      attr_accessor :job, :at, :repeat
+      attr_accessor :schedule, :job, :at, :repeat
 
-      def initialize(job, options = {})
+      def initialize(schedule, job, options = {})
+        self.schedule = schedule
         self.job = job
         self.repeat = options[:every]
         seconds = options.fetch(:in){ repeat || 60 }
@@ -107,12 +113,12 @@ module Threasy
       end
 
       def work!
-        Threasy.enqueue job
+        schedule.work.enqueue job
         self.at = at + repeat if repeat?
       end
 
       def remove
-        Schedule.instance.remove_entry self
+        schedule.remove_entry self
       end
     end
   end
