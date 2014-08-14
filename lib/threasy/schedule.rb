@@ -107,7 +107,7 @@ module Threasy
 
       def work!
         Threasy.enqueue job
-        self.at = Time.now + repeat if repeat?
+        self.at = at + repeat if repeat?
       end
 
       def remove
