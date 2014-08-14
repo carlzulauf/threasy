@@ -25,7 +25,7 @@ module Threasy
   end
 
   def self.schedules
-    config.schedules ||= Schedule.new(work)
+    config.schedule ||= Schedule.new(work)
   end
 
   def self.schedule(*args, &block)
