@@ -45,6 +45,7 @@ module Threasy
     end
 
     def clear
+      log.debug "Clearing schedules"
       sync{ @schedules.clear }
     end
 
