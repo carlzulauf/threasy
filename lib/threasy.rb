@@ -1,5 +1,4 @@
 require "logger"
-require "singleton"
 
 require "threasy/version"
 require "threasy/config"
@@ -8,8 +7,9 @@ require "threasy/schedule"
 
 module Threasy
   def self.config
-    yield Config.instance if block_given?
-    Config.instance
+    @@config ||= Config.new
+    yield @@config if block_given?
+    @@config
   end
 
   def self.logger

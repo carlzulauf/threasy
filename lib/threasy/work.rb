@@ -1,7 +1,5 @@
 module Threasy
   class Work
-    # include Singleton
-
     attr_reader :queue, :pool
 
     def initialize

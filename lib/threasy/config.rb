@@ -1,7 +1,5 @@
 module Threasy
   class Config
-    include Singleton
-
     attr_accessor :work, :schedule, :max_workers
     attr_writer :logger
 
