@@ -54,22 +54,49 @@ describe "Threasy::Schedule" do
 
   context "when laptop suspends" do
     subject{ Threasy::Schedule.new }
+    let(:hour) { 60*60 }
 
     it "should recover in a few seconds when time suddenly jumps forward" do
-      hour = 60*60
-
       job_ran = false
       job = -> { job_ran = true }
       subject.add(in: hour + 1, &job)
 
       Timecop.travel(Time.now + hour) do
-        Timeout.timeout(10) do
+        Timeout.timeout(6) do
           loop { job_ran ? break : sleep(0.2) }
         end
       end
-
-      expect(job_ran).to eq(true)
     end
+
+    it "should execute a one-time schedule long after it's due" do
+      job_ran = false
+      job = -> { job_ran = true }
+      subject.add(in: hour/2, &job)
+
+      Timecop.travel(Time.now + hour) do
+        Timeout.timeout(6) do
+          loop { job_ran ? break : sleep(0.2) }
+        end
+      end
+    end
+
+    # This really tests Schedule::Entry and should be moved to its own spec
+    it "should skip a repeating schedule that is long past due" do
+      job1_ran = false
+      job1 = -> { job1_ran = true }
+
+      job2_ran = false
+      job2 = -> { job2_ran = true }
+
+      subject.add(every: hour, in: hour/2, &job1)
+      subject.add(in: hour/2, &job2)
+
+      Timecop.travel(Time.now + hour) { sleep 6 }
+
+      expect(job1_ran).to eq(false)
+      expect(job2_ran).to eq(true)
+    end
+
   end
 
 end

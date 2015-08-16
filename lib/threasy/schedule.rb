@@ -1,6 +1,7 @@
 module Threasy
   class Schedule
-    # include Singleton
+    MAX_SLEEP   = 5.0 # 5 seconds
+
     include Enumerable
 
     def initialize(work = nil)
@@ -38,7 +39,7 @@ module Threasy
     end
 
     def sync
-      @semaphore.synchronize{ yield }
+      @semaphore.synchronize { yield }
     end
 
     def entries
@@ -46,7 +47,7 @@ module Threasy
     end
 
     def each
-      entries.each {|entry| yield entry }
+      entries.each { |entry| yield entry }
     end
 
     def clear
@@ -64,7 +65,7 @@ module Threasy
         end
         next_job = @schedules.first
         if next_job && next_job.future?
-          seconds = [next_job.at - Time.now, 5].min
+          seconds = [next_job.at - Time.now, MAX_SLEEP].min
           log.debug "Schedule watcher sleeping for #{seconds} seconds"
           sleep seconds
         end
@@ -90,6 +91,8 @@ module Threasy
     end
 
     class Entry
+      MAX_OVERDUE = 300 # 5 minutes
+
       attr_accessor :schedule, :job, :at, :repeat
 
       def initialize(schedule, job, options = {})
@@ -104,6 +107,10 @@ module Threasy
         !! repeat
       end
 
+      def once?
+        ! repeat?
+      end
+
       def due?
         Time.now > at
       end
@@ -112,8 +119,14 @@ module Threasy
         ! due?
       end
 
+      def overdue
+        Time.now - at
+      end
+
       def work!
-        schedule.work.enqueue job
+        if once? || overdue < MAX_OVERDUE
+          schedule.work.enqueue job
+        end
         self.at = at + repeat if repeat?
       end
 
