@@ -5,7 +5,7 @@ module Threasy
 
     def initialize
       self.max_workers  = 5
-      self.max_sleep    = 5.0
+      self.max_sleep    = 60.0
       self.max_overdue  = 300.0
     end
 

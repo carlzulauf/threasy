@@ -14,7 +14,7 @@ module Threasy
     def add(*args, &block)
       options = args.last.is_a?(Hash) ? args.pop : {}
       job = block_given? ? block : args.first
-      add_entry Entry.new(self, job, options)
+      add_entry Entry.new(job, {schedule: self}.merge(options))
     end
 
     def add_entry(entry)
@@ -53,7 +53,7 @@ module Threasy
 
     def watch
       loop do
-        Thread.stop if @schedules.empty?
+        Thread.stop if schedules.empty?
         entries_due.each do |entry|
           log.debug "Adding scheduled job to work queue"
           entry.work!

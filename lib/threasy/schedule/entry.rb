@@ -1,13 +1,14 @@
 module Threasy
   class Schedule::Entry
-    attr_accessor :schedule, :job, :at, :repeat
+    attr_accessor :schedule, :work, :job, :at, :repeat
 
-    def initialize(schedule, job, options = {})
-      self.schedule = schedule
-      self.job = job
-      self.repeat = options[:every]
-      seconds = options.fetch(:in) { repeat || 60 }
-      self.at = options.fetch(:at) { Time.now + seconds }
+    def initialize(job, options = {})
+      self.schedule = options.fetch(:schedule) { Threasy.schedules }
+      self.work     = options.fetch(:work) { schedule.work }
+      self.job      = job
+      self.repeat   = options[:every]
+      seconds       = options.fetch(:in) { repeat || 60 }
+      self.at       = options.fetch(:at) { Time.now + seconds }
     end
 
     def repeat?
@@ -36,7 +37,7 @@ module Threasy
 
     def work!
       if once? || overdue < max_overdue
-        schedule.work.enqueue job
+        work.enqueue job
       end
       self.at = at + repeat if repeat?
     end
