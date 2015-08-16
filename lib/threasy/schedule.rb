@@ -1,7 +1,5 @@
 module Threasy
   class Schedule
-    MAX_SLEEP   = 5.0 # 5 seconds
-
     include Enumerable
 
     attr_reader :schedules, :watcher
@@ -33,7 +31,7 @@ module Threasy
     end
 
     def remove_entry(entry)
-      sync{ schedules.delete entry }
+      sync { schedules.delete entry }
     end
 
     def tickle_watcher
@@ -63,7 +61,7 @@ module Threasy
         end
         next_job = @schedules.first
         if next_job && next_job.future?
-          seconds = [next_job.at - Time.now, MAX_SLEEP].min
+          seconds = [next_job.at - Time.now, max_sleep].min
           log.debug "Schedule watcher sleeping for #{seconds} seconds"
           sleep seconds
         end
@@ -88,17 +86,19 @@ module Threasy
       Threasy.logger
     end
 
-    class Entry
-      MAX_OVERDUE = 300 # 5 minutes
+    def max_sleep
+      Threasy.config.max_sleep
+    end
 
+    class Entry
       attr_accessor :schedule, :job, :at, :repeat
 
       def initialize(schedule, job, options = {})
         self.schedule = schedule
         self.job = job
         self.repeat = options[:every]
-        seconds = options.fetch(:in){ repeat || 60 }
-        self.at = options.fetch(:at){ Time.now + seconds }
+        seconds = options.fetch(:in) { repeat || 60 }
+        self.at = options.fetch(:at) { Time.now + seconds }
       end
 
       def repeat?
@@ -121,8 +121,12 @@ module Threasy
         Time.now - at
       end
 
+      def max_overdue
+        Threasy.config.max_overdue
+      end
+
       def work!
-        if once? || overdue < MAX_OVERDUE
+        if once? || overdue < max_overdue
           schedule.work.enqueue job
         end
         self.at = at + repeat if repeat?
