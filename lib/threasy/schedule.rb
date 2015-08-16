@@ -4,6 +4,8 @@ module Threasy
 
     include Enumerable
 
+    attr_reader :schedules, :watcher
+
     def initialize(work = nil)
       @work = work
       @semaphore = Mutex.new
@@ -19,8 +21,8 @@ module Threasy
 
     def add_entry(entry)
       sync do
-        @schedules << entry
-        @schedules.sort_by!(&:at)
+        schedules << entry
+        schedules.sort_by!(&:at)
       end
       tickle_watcher
       entry
@@ -31,28 +33,24 @@ module Threasy
     end
 
     def remove_entry(entry)
-      sync{ @schedules.delete entry }
+      sync{ schedules.delete entry }
     end
 
     def tickle_watcher
-      @watcher.wakeup if @watcher.stop?
+      watcher.wakeup if watcher.stop?
     end
 
     def sync
       @semaphore.synchronize { yield }
     end
 
-    def entries
-      @schedules
-    end
-
     def each
-      entries.each { |entry| yield entry }
+      schedules.each { |entry| yield entry }
     end
 
     def clear
       log.debug "Clearing schedules"
-      sync{ @schedules.clear }
+      sync { schedules.clear }
     end
 
     def watch
@@ -75,15 +73,15 @@ module Threasy
     def entries_due
       [].tap do |entries|
         sync do
-          while @schedules.first && @schedules.first.due?
-            entries << @schedules.shift
+          while schedules.first && schedules.first.due?
+            entries << schedules.shift
           end
         end
       end
     end
 
     def count
-      @schedules.count
+      schedules.count
     end
 
     def log
