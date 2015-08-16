@@ -4,6 +4,7 @@ require "threasy/version"
 require "threasy/config"
 require "threasy/work"
 require "threasy/schedule"
+require "threasy/schedule/entry"
 
 module Threasy
   def self.config
