@@ -1,5 +1,3 @@
-require "spec_helper"
-
 describe "Threasy::Schedule" do
 
   describe "#add" do
