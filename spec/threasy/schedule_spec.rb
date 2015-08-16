@@ -1,10 +1,9 @@
 describe "Threasy::Schedule" do
+  let(:job){ double("job") }
+  let(:work){ double("work") }
+  subject{ Threasy::Schedule.new(work) }
 
   describe "#add" do
-    let(:job){ double("job") }
-    let(:work){ double("work") }
-    subject{ Threasy::Schedule.new(work)  }
-
     it "should allow a job to be processed after specified delay" do
       expect(work).to receive(:enqueue).with(job)
       subject.add(job, in: 0.1)
@@ -41,13 +40,35 @@ describe "Threasy::Schedule" do
       subject.add(job, every: 0.1)
       sleep 0.3
     end
+  end
 
+  describe "#remove" do
     it "should be possible to remove a job from the schedule" do
       expect(work).to receive(:enqueue).with(job).at_least(:once).at_most(:twice)
-      entry = subject.add(job, every: 0.1)
-      sleep 0.2
+      entry = subject.add(job, every: 0.2)
+      sleep 0.3
       entry.remove
-      sleep 0.2
+      sleep 0.5
+    end
+  end
+
+  context "when laptop suspends" do
+    subject{ Threasy::Schedule.new }
+
+    it "should recover in a few seconds when time suddenly jumps forward" do
+      hour = 60*60
+
+      job_ran = false
+      job = -> { job_ran = true }
+      subject.add(in: hour + 1, &job)
+
+      Timecop.travel(Time.now + hour) do
+        Timeout.timeout(10) do
+          loop { job_ran ? break : sleep(0.2) }
+        end
+      end
+
+      expect(job_ran).to eq(true)
     end
   end
 

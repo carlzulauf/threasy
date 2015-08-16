@@ -64,7 +64,7 @@ module Threasy
         end
         next_job = @schedules.first
         if next_job && next_job.future?
-          seconds = next_job.at - Time.now
+          seconds = [next_job.at - Time.now, 5].min
           log.debug "Schedule watcher sleeping for #{seconds} seconds"
           sleep seconds
         end
