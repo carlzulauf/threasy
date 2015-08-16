@@ -1,5 +1,6 @@
-# require 'pry'
+require 'pry'
+require 'timecop'
 
 require File.join(File.dirname(__FILE__), "..", "lib", "threasy")
 
-# Threasy.config.logger.level = Logger::DEBUG
+Threasy.config.logger.level = Logger::DEBUG
