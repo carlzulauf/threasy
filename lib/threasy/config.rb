@@ -4,7 +4,7 @@ module Threasy
     attr_writer :logger
 
     def initialize
-      self.max_workers  = 5
+      self.max_workers  = 4
       self.max_sleep    = 60.0
       self.max_overdue  = 300.0
     end
