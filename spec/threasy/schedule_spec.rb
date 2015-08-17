@@ -1,27 +1,24 @@
 describe "Threasy::Schedule" do
   let(:job){ double("job") }
-  let(:work){ double("work") }
-  let(:schedule) { Threasy.schedules }
-  subject{ Threasy::Schedule.new(work) }
+  subject { Threasy.schedules }
 
   describe "#add" do
-
     it "should allow a job to be processed after specified delay" do
       async do |done|
-        schedule.add(-> { done.() }, in: 0.1)
+        subject.add(-> { done.() }, in: 0.1)
       end
     end
 
     it "should allow a job to be processed at the specified time" do
       async do |done|
-        schedule.add(-> { done.() }, at: Time.now + 0.1)
+        subject.add(-> { done.() }, at: Time.now + 0.1)
       end
     end
 
     it "should allow a job to be repeated at the specified interval" do
       async do |done|
         repeats = 0
-        schedule.add(every: 0.1, in: 0.1) do
+        subject.add(every: 0.1, in: 0.1) do
           repeats += 1
           done.() if repeats == 2
         end
