@@ -11,4 +11,6 @@ def async(timeout = 10)
   raise "Example's time limit exceeded" unless t.join(20)
 end
 
+Threasy.config.max_sleep = 0.1
+
 # Threasy.config.logger.level = Logger::DEBUG

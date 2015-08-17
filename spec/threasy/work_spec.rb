@@ -10,6 +10,7 @@ end
 
 describe "Threasy::Work" do
   subject { Threasy::Work.new }
+  after(:each) { subject.clear }
 
   describe "#enqueue" do
     it "should have a method for enqueing" do

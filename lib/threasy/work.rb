@@ -46,6 +46,10 @@ module Threasy
       worker.work
     end
 
+    def clear
+      queue.clear
+    end
+
     def log(msg)
       Threasy.logger.debug msg
     end
