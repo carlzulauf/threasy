@@ -19,4 +19,12 @@ describe Threasy::Schedule::Entry do
     end
   end
 
+  describe "#at" do
+    it "should default to now + every interval" do
+      Timecop.freeze do
+        expect(subject.new(nil, every: 0.1).at).to eq(Time.now + 0.1)
+      end
+    end
+  end
+
 end
