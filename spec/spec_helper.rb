@@ -1,7 +1,6 @@
-# require 'pry'
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), "..", "lib")
 require 'timecop'
-
-require File.join(File.dirname(__FILE__), "..", "lib", "threasy")
+require 'threasy'
 
 def async(timeout = 10)
   t = Thread.new do
