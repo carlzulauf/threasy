@@ -1,4 +1,7 @@
 require "logger"
+require "thread"
+require "timeout"
+require "set"
 
 require "threasy/version"
 require "threasy/config"
