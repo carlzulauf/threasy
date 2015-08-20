@@ -99,9 +99,9 @@ Threasy.config do |c|
 end
 ```
 
-[schedule]: blob/master/lib/threasy/schedule.rb
-[work]:     blob/master/lib/threasy/work.rb
-[config]:   blob/master/lib/threasy/config.rb
+[schedule]: lib/threasy/schedule.rb
+[work]:     lib/threasy/work.rb
+[config]:   lib/threasy/config.rb
 
 ## Contributing
 
