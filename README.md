@@ -79,17 +79,17 @@ Threasy.schedule(MyJob.new(1,2,3), every: 5.minutes)
 
 ### `Threasy.schedules`
 
-Returns the default instance of `Threasy::Schedule`, which manages scheduled jobs.
+Returns the default instance of [`Threasy::Schedule`][schedule], which manages scheduled jobs.
 
 ### `Threasy.work`
 
-Returns the default instance of `Threasy::Work`, which manages the work queue and worker threads.
+Returns the default instance of [`Threasy::Work`][work], which manages the work queue and worker threads.
 
 ### `Threasy.config`
 
-Returns the default instance of `Threasy::Config`, which manages runtime configuration options.
+Returns the default instance of [`Threasy::Config`][config], which manages runtime configuration options.
 
-`Threasy.confg` can also accept a block and will yield the `Threasy::Config` instance.
+`Threasy.config` can also accept a block and will yield the [`Threasy::Config`][config] instance.
 
 ```ruby
 Threasy.config do |c|
@@ -98,6 +98,10 @@ Threasy.config do |c|
   c.max_workers = 8
 end
 ```
+
+[schedule]: blob/master/lib/threasy/schedule.rb
+[work]:     blob/master/lib/threasy/work.rb
+[config]:   blob/master/lib/threasy/config.rb
 
 ## Contributing
 
