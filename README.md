@@ -45,17 +45,19 @@ Or install it yourself as:
 
 ## Usage
 
-### `enqueue`
+### `Threasy.enqueue`
 
 ```ruby
 # Use a block
-Threasy.enqueue{ puts "This will happen in the background" }
+Threasy.enqueue { puts "This will happen in the background" }
 
-# Use an object that responds to #perform or #call
+# Use an object that responds to `perform` or `call`
 Threasy.enqueue MyJob.new(1,2,3)
 ```
 
-### `schedule`
+Jobs are placed in a work queue. Worker threads are spun up to process jobs as the queue grows.
+
+### `Threasy.schedule`
 
 Puts a job onto the schedule. Once the scheduler sees a job is due for processessing, it is enqueued into the work queue to be processed like any other job.
 
@@ -75,9 +77,31 @@ Threasy.schedule(:in => 5.minutes) { puts "In the background, 5 minutes from now
 Threasy.schedule(MyJob.new(1,2,3), every: 5.minutes)
 ```
 
+### `Threasy.schedules`
+
+Returns the default instance of `Threasy::Schedule`, which manages scheduled jobs.
+
+### `Threasy.work`
+
+Returns the default instance of `Threasy::Work`, which manages the work queue and worker threads.
+
+### `Threasy.config`
+
+Returns the default instance of `Threasy::Config`, which manages runtime configuration options.
+
+`Threasy.confg` can also accept a block and will yield the `Threasy::Config` instance.
+
+```ruby
+Threasy.config do |c|
+  c.max_sleep   = 5.minutes
+  c.max_overdue = 1.hour
+  c.max_workers = 8
+end
+```
+
 ## Contributing
 
-1. Fork it ( http://github.com/<my-github-username>/threasy/fork )
+1. Fork it ( http://github.com/carlzulauf/threasy/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
