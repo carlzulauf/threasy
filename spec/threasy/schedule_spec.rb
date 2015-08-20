@@ -26,6 +26,16 @@ describe "Threasy::Schedule" do
         end
       end
     end
+
+    it "should add jobs scheduled for the future" do
+      expect(subject).to receive(:add_entry)
+      subject.add(job, at: Time.now + 100)
+    end
+
+    it "should ignore jobs scheduled for the past" do
+      expect(subject).not_to receive(:add_entry)
+      subject.add(job, at: Time.now - 100)
+    end
   end
 
   describe "#remove" do

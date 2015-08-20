@@ -14,7 +14,8 @@ module Threasy
     def add(*args, &block)
       options = args.last.is_a?(Hash) ? args.pop : {}
       job = block_given? ? block : args.first
-      add_entry Entry.new(job, {schedule: self}.merge(options))
+      entry = Entry.new job, {schedule: self}.merge(options)
+      add_entry entry if entry.future?
     end
 
     def add_entry(entry)
