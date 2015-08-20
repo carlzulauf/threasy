@@ -1,5 +1,18 @@
 module Threasy
   class Work
+    # = Threasy::Work
+    #
+    # Class to manage the work queue.
+    #
+    # An instance of `Threasy::Work` will manage a pool of worker threads and
+    # a queue of jobs. As the job queue grows, new worker threads are created
+    # process the jobs. When the Queue remains empty, worker threads are culled.
+    #
+    # == Example
+    #
+    #     work = Threasy::Work.new
+    #     work.enqueue { puts "Hello from the background!" }
+    #     # Outputs: Hello from the background!
     attr_reader :queue, :pool
 
     def initialize
@@ -8,8 +21,23 @@ module Threasy
       @semaphore = Mutex.new
     end
 
+    # Enqueue a job into the work queue
+    #
+    # === Examples
+    #
+    #     work = Threasy::Work.new
+    #
+    #     # Enqueue blocks
+    #     work.enqueue { do_some_background_work }
+    #
+    #     # Enqueue job objects that respond to `perform` or `call`
+    #     work.enqueue BackgroundJob.new(some: data)
+    #
+    #     # Enqueue string that evals to a job object
+    #     Threasy.enqueue("BackgroundJob.new")
+    #
     def enqueue(job = nil, &block)
-      queue.push(block_given? ? block : job).tap{ check_workers }
+      queue.push(block_given? ? block : job).tap { check_workers }
     end
 
     alias_method :enqueue_block, :enqueue
@@ -38,11 +66,9 @@ module Threasy
     end
 
     def add_worker(size)
-      # sync do
-        log "Adding new worker to pool"
-        worker = Worker.new(self, size)
-        pool.add worker
-      # end
+      log "Adding new worker to pool"
+      worker = Worker.new(self, size)
+      pool.add worker
       worker.work
     end
 

@@ -1,5 +1,16 @@
 module Threasy
   class Schedule::Entry
+    # = Schedule Entry
+    #
+    # Represents a single entry in a schedule.
+    #
+    # Class is responsible for keeping track of the timing and recurrance of
+    # a the supplied `job` object.
+    #
+    # Entry instances are usually created by a `Threasy::Schedule` instance
+    # and should not be created by hand.
+    #
+    # See `Threasy::Schedule#add`
     attr_accessor :schedule, :work, :job, :at, :repeat
 
     def initialize(job, options = {})

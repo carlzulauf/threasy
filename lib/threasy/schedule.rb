@@ -1,9 +1,35 @@
 module Threasy
   class Schedule
+    # = Threasy::Schedule
+    #
+    # Class that manages a "schedule".
+    #
+    # A "schedule" is a collection of jobs, some one-time, some repeating,
+    # that execute at specific times.
+    #
+    # `Threasy::Schedule` maintains an ordered list of jobs, sorted by which
+    # jobs are up "next".
+    #
+    # The `watcher` thread periodically wakes up, finds jobs that need to be
+    # worked, and enqueues them into the `work` queue.
+    #
+    # The `work` queue defaults to the default `Threasy::Work` instance, but
+    # can be any object that responds to `enqueue` and accepts your job objects.
+    #
+    # == Example
+    #
+    #     schedule = Threasy::Schedule.new
+    #     schedule.add(MyJob.new(1,2,3), in: 1.hour, every: 0.5.days)
     include Enumerable
 
     attr_reader :schedules, :watcher
 
+    # Creates new `Threasy::Schedule` instance
+    #
+    # === Parameters
+    #
+    # * `work` - Optional. Usually a `Threasy::Work` instance.
+    #            Defaults to `Threasy.work`
     def initialize(work = nil)
       @work = work
       @semaphore = Mutex.new
@@ -11,6 +37,36 @@ module Threasy
       @watcher = Thread.new{ watch }
     end
 
+    # Schedule a job
+    #
+    # === Examples
+    #
+    #     schedule = Threasy::Schedule.new(work: Threasy::Work.new)
+    #
+    #     # Schedule blocks
+    #     schedule.add(in: 5.min) { do_some_background_work }
+    #
+    #     # Schedule job objects compatible with the `work` queue
+    #     schedule.add(BackgroundJob.new(some: data), every: 1.hour)
+    #
+    #     # Enqueue strings that can be evals to a job object
+    #     schedule.add("BackgroundJob.new", every: 1.day)
+    #
+    # === Parameters
+    #
+    # * `job` - Job object which responds to `perform` or `call`
+    # * `options`
+    #   * `every: n` - If present, job is repeated every `n` seconds
+    #   * `in: n` - `n` seconds until job is executed
+    #   * `at: Time` - Time to execute job at
+    # * `&block` - Job block
+    #
+    # Must have either a `job` object or job `&block` present.
+    #
+    # === Returns
+    #
+    # * `Threasy::Schedule::Entry` if job was successfully added to schedule
+    # * `nil` if job was for the past
     def add(*args, &block)
       options = args.last.is_a?(Hash) ? args.pop : {}
       job = block_given? ? block : args.first
@@ -18,6 +74,7 @@ module Threasy
       add_entry entry if entry.future?
     end
 
+    # Add a `Threasy::Schedule::Entry` object to `schedules`
     def add_entry(entry)
       sync do
         schedules << entry
@@ -27,6 +84,7 @@ module Threasy
       entry
     end
 
+    # Returns the current work queue
     def work
       @work ||= Threasy.work
     end
@@ -35,6 +93,7 @@ module Threasy
       sync { schedules.delete entry }
     end
 
+    # Wakes up the watcher thread if its sleeping
     def tickle_watcher
       watcher.wakeup if watcher.stop?
     end
@@ -52,6 +111,9 @@ module Threasy
       sync { schedules.clear }
     end
 
+    # Used by the watcher thread to find jobs that are due, add them to the
+    # `work` queue, re-sort the schedule, and attempt to sleep until the next
+    # job is due.
     def watch
       loop do
         Thread.stop if schedules.empty?
@@ -69,6 +131,7 @@ module Threasy
       end
     end
 
+    # Pop entries off the schedule that are due
     def entries_due
       [].tap do |entries|
         sync do
