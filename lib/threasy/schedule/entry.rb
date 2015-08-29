@@ -24,7 +24,7 @@ module Threasy
     end
 
     def repeat?
-      !! repeat
+      repeat && times_remaining?
     end
 
     def once?
@@ -48,11 +48,9 @@ module Threasy
     end
 
     def work!
-      return unless times_remaining?
-
       if once? || overdue < max_overdue
-        work.enqueue job
-        self.times -= 1 if times
+        work.enqueue(job) if times_remaining?
+        self.times -= 1 unless times.nil?
       end
 
       self.at = at + repeat if repeat?
