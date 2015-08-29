@@ -11,7 +11,7 @@ module Threasy
     # and should not be created by hand.
     #
     # See `Threasy::Schedule#add`
-    attr_accessor :schedule, :work, :job, :at, :repeat
+    attr_accessor :schedule, :work, :job, :at, :repeat, :times
 
     def initialize(job, options = {})
       self.schedule = options.fetch(:schedule) { Threasy.schedules }
@@ -20,6 +20,7 @@ module Threasy
       self.repeat   = options[:every]
       seconds       = options.fetch(:in) { repeat || 60 }
       self.at       = options.fetch(:at) { Time.now + seconds }
+      self.times    = options[:times]
     end
 
     def repeat?
@@ -47,10 +48,18 @@ module Threasy
     end
 
     def work!
+      return unless times_remaining?
+
       if once? || overdue < max_overdue
         work.enqueue job
+        self.times -= 1 if times
       end
+
       self.at = at + repeat if repeat?
+    end
+
+    def times_remaining?
+      times.nil? || times > 0
     end
 
     def remove

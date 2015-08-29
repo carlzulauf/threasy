@@ -17,6 +17,12 @@ describe Threasy::Schedule::Entry do
       entry = subject.new(job, work: work, in: hour/2, every: hour)
       Timecop.travel(Time.now + hour) { entry.work! }
     end
+
+    it "should not execute a job after the max specified times" do
+      entry = subject.new(job, work: work, times: 2)
+      expect(work).to receive(:enqueue).with(job).twice
+      3.times { entry.work! }
+    end
   end
 
   describe "#at" do
