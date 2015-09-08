@@ -3,15 +3,15 @@
 [travis-image]: https://secure.travis-ci.org/carlzulauf/threasy.png?branch=master
 [travis-link]: http://travis-ci.org/carlzulauf/threasy
 
-Dead simple in-process threaded background job solution.
+**Thr**eaded, **easy** to use scheduling and background job solution.
 
-Includes scheduling for jobs in the future and/or recurring jobs.
+Schedules are managed by a watcher thread and enqueued as background jobs when they are due.
 
-Work waiting to be processed is stored in a thread-safe `Queue` and worked on by a small pool of worker threads.
+Background work is stored in a thread-safe `Queue` and worked on by a pool of worker threads.
 
 ### What to expect
 
-* Dead simple-ness
+* Simple API
 * Ability to queue or schedule ruby blocks for asynchronus execution
 * Extremely light-weight
 * No dependencies (outside ruby stdlib)
@@ -66,6 +66,7 @@ Available options:
 * `:every`: number of seconds between repetition. Can be combined with `:at` or `:in`.
 * `:in`: number of seconds until job is (next) triggered.
 * `:at`: `Time` job is (next) triggered.
+* `:times`: number of times to trigger job before removing it from the schedule.
 
 Example:
 
