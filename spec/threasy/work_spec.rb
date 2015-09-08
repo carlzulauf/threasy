@@ -3,7 +3,7 @@ class TestJob
     @resolver = resolver
   end
 
-  def perform
+  def perform(*args)
     @resolver.()
   end
 end
@@ -34,6 +34,17 @@ describe "Threasy::Work" do
         expect(TestJob).to receive(:perform).once
         subject.enqueue "TestJob"
         subject.enqueue { done.() }
+      end
+    end
+
+    it "should pass optional arguments onto job" do
+      async do |done|
+        args = [:foo, :bar]
+        job = proc do |*a|
+          expect(a).to eq(args)
+          done.()
+        end
+        subject.enqueue job, *args
       end
     end
   end

@@ -37,8 +37,9 @@ module Threasy
     #     # Enqueue string that evals to a job object
     #     Threasy.enqueue("BackgroundJob.new")
     #
-    def enqueue(job = nil, &block)
-      queue.push(block_given? ? block : job).tap { check_workers }
+    def enqueue(*args, &block)
+      args.unshift(block) if block_given?
+      queue.push(args).tap { check_workers }
     end
 
     alias_method :enqueue_block, :enqueue
@@ -91,13 +92,14 @@ module Threasy
       end
 
       def work
-        Thread.start do
+        @thread = Thread.start do
           loop do
-            if job = @work.grab
+            if args = @work.grab
+              job = args.shift
               log.debug "Worker ##{@id} has grabbed a job"
               begin
                 job = eval(job) if job.kind_of?(String)
-                job.respond_to?(:perform) ? job.perform : job.call
+                job.respond_to?(:perform) ? job.perform(*args) : job.call(*args)
               rescue Exception => e
                 log.error %|Worker ##{@id} error: #{e.message}\n#{e.backtrace.join("\n")}|
               end

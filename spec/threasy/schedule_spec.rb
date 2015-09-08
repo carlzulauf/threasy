@@ -36,6 +36,16 @@ describe "Threasy::Schedule" do
       expect(subject).not_to receive(:add_entry)
       subject.add(job, at: Time.now - 100)
     end
+
+    it "should pass optional arguments onto job when its worked" do
+      async do |done|
+        args = [:foo, :bar]
+        subject.add(in: 0.01, args: args) do |*a|
+          expect(a).to eq(args)
+          done.()
+        end
+      end
+    end
   end
 
   describe "#remove" do
