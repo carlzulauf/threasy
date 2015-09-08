@@ -19,6 +19,7 @@ module Threasy
       @queue = TimeoutQueue.new
       @pool = Set.new
       @semaphore = Mutex.new
+      min_workers.times { add_worker }
     end
 
     # Enqueue a job into the work queue
@@ -61,17 +62,16 @@ module Threasy
     def check_workers
       sync do
         pool_size = pool.size
-        queue_size = queue.size
-        log "Checking workers. Pool: #{pool_size}, Max: #{max_workers}, Queue: #{queue_size}"
+        log "Checking workers. Pool: #{pool_size} (min: #{min_workers}, max: #{max_workers})"
         if pool_size < max_workers
-          add_worker(pool_size) if pool_size == 0 || queue_size > max_workers
+          add_worker if pool_size == 0 || queue.size > max_workers
         end
       end
     end
 
-    def add_worker(size)
+    def add_worker
       log "Adding new worker to pool"
-      worker = Worker.new(self, size)
+      worker = Worker.new(self, pool.size)
       pool.add worker
       worker.work
     end
