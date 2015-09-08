@@ -92,18 +92,19 @@ module Threasy
 
       def work
         Thread.start do
-          while job = @work.grab
-            log.debug "Worker ##{@id} has grabbed a job"
-            begin
-              job = eval(job) if job.kind_of?(String)
-              job.respond_to?(:perform) ? job.perform : job.call
-            rescue Exception => e
-              log.error %|Worker ##{@id} error: #{e.message}\n#{e.backtrace.join("\n")}|
+          loop do
+            if job = @work.grab
+              log.debug "Worker ##{@id} has grabbed a job"
+              begin
+                job = eval(job) if job.kind_of?(String)
+                job.respond_to?(:perform) ? job.perform : job.call
+              rescue Exception => e
+                log.error %|Worker ##{@id} error: #{e.message}\n#{e.backtrace.join("\n")}|
+              end
+            elsif @work.pool.size > @work.min_workers
+              @work.sync { @work.pool.delete self }
+              break
             end
-          end
-          if @work.pool.size > @work.min_workers
-            log.debug "Worker ##{@id} removing self from pool"
-            @work.sync{ @work.pool.delete self }
           end
         end
       end
