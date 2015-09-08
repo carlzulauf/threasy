@@ -50,6 +50,10 @@ module Threasy
       queue.pop
     end
 
+    def min_workers
+      Threasy.config.min_workers
+    end
+
     def max_workers
       Threasy.config.max_workers
     end
@@ -97,8 +101,10 @@ module Threasy
               log.error %|Worker ##{@id} error: #{e.message}\n#{e.backtrace.join("\n")}|
             end
           end
-          log.debug "Worker ##{@id} removing self from pool"
-          @work.sync{ @work.pool.delete self }
+          if @work.pool.size > @work.min_workers
+            log.debug "Worker ##{@id} removing self from pool"
+            @work.sync{ @work.pool.delete self }
+          end
         end
       end
 
