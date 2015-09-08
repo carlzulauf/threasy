@@ -45,7 +45,7 @@ Or install it yourself as:
 
 ## Usage
 
-### `enqueue`
+### `Threasy.enqueue`
 
 ```ruby
 # Use a block
@@ -57,7 +57,7 @@ Threasy.enqueue MyJob.new(1,2,3)
 
 Jobs are placed in a work queue. Worker threads are spun up to process jobs as the queue grows.
 
-### `schedule`
+### `Threasy.schedule`
 
 Puts a job onto the schedule. Once the scheduler sees a job is due for processessing, it is enqueued into the work queue to be processed like any other job.
 
@@ -78,15 +78,15 @@ Threasy.schedule(:in => 5.minutes) { puts "In the background, 5 minutes from now
 Threasy.schedule(MyJob.new(1,2,3), every: 5.minutes)
 ```
 
-### `schedules`
+### `Threasy.schedules`
 
 Returns the default instance of [`Threasy::Schedule`][schedule], which manages scheduled jobs.
 
-### `work`
+### `Threasy.work`
 
 Returns the default instance of [`Threasy::Work`][work], which manages the work queue and worker threads.
 
-### `config`
+### `Threasy.config`
 
 Returns the default instance of [`Threasy::Config`][config], which manages runtime configuration options.
 
